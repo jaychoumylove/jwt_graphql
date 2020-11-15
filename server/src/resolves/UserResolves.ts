@@ -1,11 +1,16 @@
 import { compare, hash } from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import { Arg, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
-import { User } from '../entity/User'
+import MyContext from "src/MyContext";
+import { Arg, Ctx, Field, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
+import { User } from '../entity/User';
+import { 
+    createAccessToken,
+    sendRefreshToken
+} from '../auth'
+import { isAuth } from "../IsAuth";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class LoginReponse {
-
     @Field()
     accessToken: String
 }
@@ -17,9 +22,25 @@ export class UserResolves {
         return 'hi';
     }
 
+    @Query(() => String)
+    @UseMiddleware(isAuth)
+    bye(
+        @Ctx() ctx: MyContext
+    ) {
+        return 'bye, your id is ' + ctx.payload?.userId;
+    }
+
     @Query(() => [User])
     users() {
         return User.find();
+    }
+
+    @Mutation(() => Boolean)
+    async revokeRefreshForUser(
+        @Arg('userId', () => Int) userId: number
+    ) {
+        await getConnection().getRepository(User).increment({id: userId}, 'tokenVersion', 1);
+        return true;
     }
 
     @Mutation(() => Boolean)
@@ -45,6 +66,7 @@ export class UserResolves {
     async login(
         @Arg('email', () => String) email: string,
         @Arg('password', () => String) password: string,
+        @Ctx() {res}: MyContext
     ): Promise<LoginReponse> {
         const user = await User.findOne({where: { email }});
         if (!user) {
@@ -56,8 +78,10 @@ export class UserResolves {
             throw new Error("invalid password");
         }
 
+        sendRefreshToken(user, res);
+        
         return {
-            accessToken: sign({userId: user.id}, '73454593ksfsd', {expiresIn: '15m'})
+            accessToken: createAccessToken(user)
         };
     }
     
