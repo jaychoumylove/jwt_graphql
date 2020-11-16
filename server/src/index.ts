@@ -1,67 +1,74 @@
 import "reflect-metadata";
-import 'dotenv/config';
-import express from 'express';
+import "dotenv/config";
+import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { UserResolves } from "./resolves/UserResolves";
 import { createConnection } from "typeorm";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import { verify } from "jsonwebtoken";
 import { createAccessToken, sendRefreshToken } from "./auth";
 import { User } from "./entity/User";
+import cors from "cors";
 
 (async () => {
-    const app = express();
-    app.use(cookieParser());
+  const app = express();
+  app.use(cookieParser());
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
 
-    app.get('/', (_req, res) => {
-        res.send('hi');
-    });
+  app.get("/", (_req, res) => {
+    res.send("hi");
+  });
 
-    app.post('/refresh_token', async (req, res) => {
-        let token = req.cookies.jid;
-        if (!token) {
-            return res.json({ok: false, accessToken: ''});
+  app.post("/refresh_token", async (req, res) => {
+    let token = req.cookies.jid;
+    if (!token) {
+      return res.json({ ok: false, accessToken: "" });
+    }
+
+    let accessToken = "";
+    try {
+      const payload: any = verify(token, process.env.REFRESH_TOKEN_SALT!);
+
+      if (payload) {
+        const user = await User.findOne(payload.userId);
+        if (!user) {
+          throw new Error("can't find user");
         }
 
-        let accessToken = '';
-        try {
-            const payload: any = verify(token, process.env.REFRESH_TOKEN_SALT!);
-
-            if (payload) {
-                const user = await User.findOne(payload.userId);
-                if (!user) {
-                    throw new Error("can't find user");
-                }
-
-                if (user.tokenVersion !== payload.tokenVersion) {
-                    throw new Error("tokenVersion is invalid");
-                }
-
-                accessToken = createAccessToken(user);
-
-                sendRefreshToken(user, res);
-            }
-        } catch(error) {
-            console.info(error);
-            return res.json({ok: false, accessToken: ''});
+        if (user.tokenVersion !== payload.tokenVersion) {
+          throw new Error("tokenVersion is invalid");
         }
 
-        return res.json({ok: true, accessToken});
-    })
+        accessToken = createAccessToken(user);
 
-    const apolloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers: [UserResolves]
-        }),
-        context:({req, res}) => ({req, res})
-    })
+        sendRefreshToken(user, res);
+      }
+    } catch (error) {
+      console.info(error);
+      return res.json({ ok: false, accessToken: "" });
+    }
 
-    await createConnection(); 
+    return res.json({ ok: true, accessToken });
+  });
 
-    apolloServer.applyMiddleware({ app });
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [UserResolves],
+    }),
+    context: ({ req, res }) => ({ req, res }),
+  });
 
-    app.listen(4000, () => {
-        console.log('express server started');
-    })
+  await createConnection();
+
+  apolloServer.applyMiddleware({ app, cors: false });
+
+  app.listen(4000, () => {
+    console.log("express server started");
+  });
 })();

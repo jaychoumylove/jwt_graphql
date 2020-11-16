@@ -1,4 +1,4 @@
- import { verify } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
 import { MiddlewareFn } from "type-graphql";
 import { MyPlayload } from "./auth";
 import MyContext from "./MyContext";

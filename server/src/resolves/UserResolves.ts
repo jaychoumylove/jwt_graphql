@@ -8,6 +8,7 @@ import {
 } from '../auth'
 import { isAuth } from "../IsAuth";
 import { getConnection } from "typeorm";
+import MyError from "../Error";
 
 @ObjectType()
 class LoginReponse {
@@ -70,7 +71,8 @@ export class UserResolves {
     ): Promise<LoginReponse> {
         const user = await User.findOne({where: { email }});
         if (!user) {
-            throw new Error("invalid email");
+            throw new MyError("can't find user", 2);
+            // throw new Error("can't find user");
         }
 
         const validPwd = await compare(password, user.password);
