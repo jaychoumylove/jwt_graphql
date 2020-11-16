@@ -12,7 +12,7 @@ const createAccessToken: (T: User) => string = (user) => {
     userId: user.id,
     tokenVersion: user.tokenVersion,
   };
-  return sign(playload, process.env.ACCESS_TOKEN_SALT!, { expiresIn: "15s" });
+  return sign(playload, process.env.ACCESS_TOKEN_SALT!, { expiresIn: "15m" });
 };
 
 const createRefreshToken: (T: User) => string = (user) => {
