@@ -1,24 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
-export interface IHeaderProps {
-    
-}
+export interface IHeaderProps {}
 
 const Header: React.FC<IHeaderProps> = () => {
-    return (
-        <header>
-            <div>
-                <Link to='/'>Home</Link>
-            </div>
-            <div>
-                <Link to='/register'>Register</Link>
-            </div>
-            <div>
-                <Link to='/login'>Login</Link>
-            </div>
-        </header>
-    );
-}
+  return (
+    <header>
+      <div>
+        <Link to="/">Home</Link>
+      </div>
+      <div>
+        <Link to="/register">Register</Link>
+      </div>
+      <div>
+        <Link to="/login">Login</Link>
+      </div>
+      <div>
+        <Link to="/bye">Bye</Link>
+      </div>
+    </header>
+  );
+};
 
 export { Header };
