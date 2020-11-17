@@ -12,7 +12,11 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { User } from "../entity/User";
-import { createAccessToken, sendRefreshToken } from "../auth";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "../auth";
 import { isAuth } from "../IsAuth";
 import { getConnection } from "typeorm";
 import MyError from "../Error";
@@ -110,7 +114,7 @@ export class UserResolves {
       throw new Error("invalid password");
     }
 
-    sendRefreshToken(user, res);
+    sendRefreshToken(createRefreshToken(user), res);
 
     return {
       accessToken: createAccessToken(user),
@@ -120,7 +124,7 @@ export class UserResolves {
 
   @Mutation(() => Boolean)
   async logout(@Ctx() { res }: MyContext) {
-    res.clearCookie("jid");
+    sendRefreshToken("", res);
     return true;
   }
 }

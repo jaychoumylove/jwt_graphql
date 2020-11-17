@@ -14,17 +14,13 @@ const Register: React.FC<IRegisterProps> = ({ history }) => {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log("form submiteed");
-          console.log(email, password);
 
-          const response = await register({
+          await register({
             variables: {
               email,
               password,
             },
           });
-
-          console.log(response);
 
           history.push("/");
         }}

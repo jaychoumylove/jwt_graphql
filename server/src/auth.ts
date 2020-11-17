@@ -12,7 +12,7 @@ const createAccessToken: (T: User) => string = (user) => {
     userId: user.id,
     tokenVersion: user.tokenVersion,
   };
-  return sign(playload, process.env.ACCESS_TOKEN_SALT!, { expiresIn: "15m" });
+  return sign(playload, process.env.ACCESS_TOKEN_SALT!, { expiresIn: "15s" });
 };
 
 const createRefreshToken: (T: User) => string = (user) => {
@@ -23,8 +23,8 @@ const createRefreshToken: (T: User) => string = (user) => {
   return sign(playload, process.env.REFRESH_TOKEN_SALT!, { expiresIn: "7d" });
 };
 
-const sendRefreshToken: (T: User, res: Response) => void = (user, res) => {
-  res.cookie("jid", createRefreshToken(user), {
+const sendRefreshToken: (token: string, res: Response) => void = (token, res) => {
+  res.cookie("jid", token, {
     httpOnly: true,
     path: "/refresh_token",
   });

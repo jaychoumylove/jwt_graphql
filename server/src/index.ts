@@ -7,7 +7,11 @@ import { UserResolves } from "./resolves/UserResolves";
 import { createConnection } from "typeorm";
 import cookieParser from "cookie-parser";
 import { verify } from "jsonwebtoken";
-import { createAccessToken, sendRefreshToken } from "./auth";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "./auth";
 import { User } from "./entity/User";
 import cors from "cors";
 
@@ -47,7 +51,7 @@ import cors from "cors";
 
         accessToken = createAccessToken(user);
 
-        sendRefreshToken(user, res);
+        sendRefreshToken(createRefreshToken(user), res);
       }
     } catch (error) {
       console.info(error);

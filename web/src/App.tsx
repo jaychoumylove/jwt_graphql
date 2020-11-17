@@ -17,6 +17,7 @@ function App() {
 
   const httpLink = new HttpLink({
     uri: `${uri}/graphql`,
+    credentials: "include",
   });
 
   const authMiddleware = new ApolloLink(

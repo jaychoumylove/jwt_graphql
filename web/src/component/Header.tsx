@@ -37,9 +37,8 @@ const Header: React.FC<IHeaderProps> = () => {
         <button
           onClick={async () => {
             await logout();
-            // history.push("/");
-            await client!.resetStore();
             setAccessToken("");
+            await client!.resetStore();
           }}
         >
           logout

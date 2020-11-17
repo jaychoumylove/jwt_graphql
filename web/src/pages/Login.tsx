@@ -15,8 +15,6 @@ const Login: React.FC<ILoginProps> = ({ history }) => {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log("form submiteed");
-          console.log(email, password);
 
           const response = await login({
             variables: {
@@ -37,7 +35,6 @@ const Login: React.FC<ILoginProps> = ({ history }) => {
             },
           });
 
-          console.log(response);
           if (response && response.data) {
             setAccessToken(response.data.login.accessToken);
           }

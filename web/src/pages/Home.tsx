@@ -1,13 +1,10 @@
 import React from "react";
-import { getAccessToken } from "../AccessToken";
 import { useUsersQuery } from "../generated/graphql";
 
 export interface IHomeProps {}
 
 const Home: React.FC<IHomeProps> = () => {
   const { data } = useUsersQuery({ fetchPolicy: "network-only" });
-
-  console.log(getAccessToken());
 
   return (
     <div>

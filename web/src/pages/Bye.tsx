@@ -9,11 +9,8 @@ const Bye: React.FC<IByeProps> = () => {
   if (loading) return <div>loading...</div>;
 
   if (error) {
-    console.log(error.message);
-    return <div>error</div>;
+    return <div>{error.message}</div>;
   }
-
-  console.log(data);
 
   return <div>{data?.bye}</div>;
 };
